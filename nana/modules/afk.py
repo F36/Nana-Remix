@@ -4,9 +4,17 @@ from pyrogram import filters
 
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from nana import app, setbot, Owner, OwnerName, Command, DB_AVAILABLE, edrep
-from nana.helpers.msg_types import Types, get_message_type
-from nana.helpers.parser import mention_markdown, escape_markdown
+from nana import (
+    app,
+    setbot,
+    Owner,
+    OwnerName,
+    COMMAND_PREFIXES,
+    DB_AVAILABLE,
+    edit_or_reply,
+)
+from nana.utils.msg_types import Types, get_message_type
+from nana.utils.parser import mention_markdown, escape_markdown
 
 if DB_AVAILABLE:
     from nana.modules.database.afk_db import set_afk, get_afk
@@ -20,8 +28,8 @@ And that mentioned will notify you by your Assistant.
 If you're restart your bot, all counter and data in cache will be reset.
 But you will still in afk, and always reply when got mentioned.
 
-──「 **Set AFK status** 」── -> `afk (*reason)` Set yourself to afk, give a reason if need. When someone tag you, 
-you will says in afk with reason, and that mentioned will sent in your assistant PM. 
+──「 **Set AFK status** 」── -> `afk (*reason)` Set yourself to afk, give a reason if need. When someone tag you,
+you will says in afk with reason, and that mentioned will sent in your assistant PM.
 
 To exit from afk status, send anything to anywhere, exclude PM and saved message.
 
@@ -34,7 +42,7 @@ AFK_RESTIRECT = {}
 DELAY_TIME = 60  # seconds
 
 
-@app.on_message(filters.me & (filters.command("afk", Command)))
+@app.on_message(filters.me & (filters.command("afk", COMMAND_PREFIXES)))
 async def afk(_, message):
     if not DB_AVAILABLE:
         await message.edit("Your database is not avaiable!")
@@ -78,12 +86,12 @@ async def afk_mentioned(_, message):
             return
         AFK_RESTIRECT[cid] = int(time.time()) + DELAY_TIME
         if get["reason"]:
-            await edrep(
+            await edit_or_reply(
                 message,
                 text=f"Sorry, {mention_markdown(Owner, OwnerName)} is AFK!\nBecause of {get['reason']}",
             )
         else:
-            await edrep(
+            await edit_or_reply(
                 message, text=f"Sorry, {mention_markdown(Owner, OwnerName)} is AFK!"
             )
 
